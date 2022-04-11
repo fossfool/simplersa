@@ -16,7 +16,7 @@ func TestNewRSAKeyPair(t *testing.T) {
 	if keyErr != nil {
 		t.Errorf("expected success received %s", keyErr)
 	}
-	if kp.publicKey == "" || kp.privateKey == "" {
+	if kp.PublicKey == "" || kp.PrivateKey == "" {
 		t.Errorf("NewRSAKeyPair() failed to return a valid key pair.")
 	}
 
@@ -177,11 +177,11 @@ func TestEncryptMessage(t *testing.T) {
 	plainText := "Hello this is a test message with runes♡♡♡♡"
 
 	//normal ops
-	cipherText, err10 := EncryptMessage(plainText, keys.publicKey)
+	cipherText, err10 := EncryptMessage(plainText, keys.PublicKey)
 	if err10 != nil {
 		t.Errorf("Message Encryption Failed: %s", err10)
 	}
-	decryptedText, err11 := DecryptMessage(cipherText, keys.privateKey)
+	decryptedText, err11 := DecryptMessage(cipherText, keys.PrivateKey)
 	if err11 != nil {
 		t.Errorf("Message Decryption Failed: %s", err11)
 	}
@@ -195,7 +195,7 @@ func TestEncryptMessage(t *testing.T) {
 	//Blank message and/or blank key passed
 	_, err := EncryptMessage("", "")
 	if err == nil && err != ErrBlankValues {
-		t.Errorf("blank message and publicKey were not detected")
+		t.Errorf("blank message and PublicKey were not detected")
 	}
 
 	//Added the "BadBytes" sticking out on the right side of the key
@@ -219,7 +219,7 @@ Yaj0FM0G8awAoYfk0iG1AC8CAwEAAQ==
 	//Test a Malformed Public key
 	_, err3 := EncryptMessage("Test Message", badPublicKey)
 	if err3 == nil {
-		t.Errorf("malforomed publicKey not detected")
+		t.Errorf("malforomed PublicKey not detected")
 	}
 	if err3 != ErrEncryptMessageX509Parsing {
 		t.Errorf("expected ErrEncryptMessageX509Parsing but found error \"%s\"", err3)
@@ -235,11 +235,11 @@ func TestDecryptMessage(t *testing.T) {
 	}
 	plainText := "Hello this is a test message with runes♡♡♡♡"
 
-	cipherText, err1 := EncryptMessage(plainText, keys.publicKey)
+	cipherText, err1 := EncryptMessage(plainText, keys.PublicKey)
 	if err1 != nil {
 		t.Errorf("message encryption Failed: %s", err1)
 	}
-	decryptedText, err2 := DecryptMessage(cipherText, keys.privateKey)
+	decryptedText, err2 := DecryptMessage(cipherText, keys.PrivateKey)
 	if err2 != nil {
 		t.Errorf("message eecryption Failed: %s", err2)
 	}
@@ -280,9 +280,9 @@ func TestWrongKeyUsed(t *testing.T) {
 	k1, _ := NewRSAKeyPair(TestKeyLen)
 	k2, _ := NewRSAKeyPair(TestKeyLen)
 	plainText := "Hello this is a test message with runes♡♡♡♡"
-	cipherText, _ := EncryptMessage(plainText, k1.publicKey)
+	cipherText, _ := EncryptMessage(plainText, k1.PublicKey)
 
-	decryptedMsg, err := DecryptMessage(cipherText, k2.privateKey)
+	decryptedMsg, err := DecryptMessage(cipherText, k2.PrivateKey)
 	if err != nil && err != ErrDecryptionFailed {
 		t.Errorf("Expected ErrDecryptionFailed, received:\nDecrypted Message: %s\n Error: %s", decryptedMsg, err)
 	}
@@ -291,10 +291,10 @@ func TestWrongKeyUsed(t *testing.T) {
 func TestBadPEMFormattingOnKey(t *testing.T) {
 	key, _ := NewRSAKeyPair(TestKeyLen)
 	plainText := "Hello this is a test message with runes♡♡♡♡"
-	cipherText, _ := EncryptMessage(plainText, key.publicKey)
+	cipherText, _ := EncryptMessage(plainText, key.PublicKey)
 	//create a bad PEM packet by removing headers from PrivateKey
 	var badKey string = ""
-	for _, ln := range strings.Split(key.privateKey, "\n") {
+	for _, ln := range strings.Split(key.PrivateKey, "\n") {
 		if !strings.Contains(ln, "-") {
 			badKey += ln
 		}
@@ -311,12 +311,12 @@ func TestBadPEMFormattingOnKey(t *testing.T) {
 func TestBadX509DecodingOnKey(t *testing.T) {
 	key, _ := NewRSAKeyPair(TestKeyLen)
 	plainText := "Hello this is a test message with runes♡♡♡♡"
-	cipherText, _ := EncryptMessage(plainText, key.publicKey)
+	cipherText, _ := EncryptMessage(plainText, key.PublicKey)
 
 	// making a wee change to a good private key, so it won't parse correctly in x509
 	// decryption phase.
 	var badKey string = ""
-	for i, ln := range strings.Split(key.privateKey, "\n") {
+	for i, ln := range strings.Split(key.PrivateKey, "\n") {
 		if i == 4 {
 			badKey += "BadKEY"
 			for i, r := range []rune(ln) {

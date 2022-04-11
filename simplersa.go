@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	ErrBlankValues                      = errors.New("message and/or publicKey is blank")
+	ErrBlankValues                      = errors.New("message and/or PublicKey is blank")
 	ErrEncryptMessageConvertingKey      = errors.New("cannot convert key PEM decode failed")
 	ErrEncryptMessageX509Parsing        = errors.New("parsing x509 data")
 	ErrEncryptMessagePCS1Encrypting     = errors.New("encrypting Message with PKCS1v5")
@@ -30,8 +30,8 @@ var (
 var ValidKeyLengths = []int{512, 1024, 2048, 3072, 4096, 7680, 15360}
 
 type RsaKeyPairType struct {
-	publicKey  string
-	privateKey string
+	PublicKey  string
+	PrivateKey string
 }
 
 // badLength validates if KeyLen is in the ValidKeyLengths array
@@ -66,7 +66,7 @@ func NewRSAKeyPair(rsaKeyLength int) (RsaKeyPairType, error) {
 	// create a x509 PEM encoded "Private Key" string that you
 	//could store in a file if you wanted to :)
 
-	rsaKeyPair.privateKey = string(
+	rsaKeyPair.PrivateKey = string(
 		pem.EncodeToMemory(
 			&pem.Block{
 				Type:  "RSA Private Key",
@@ -75,7 +75,7 @@ func NewRSAKeyPair(rsaKeyLength int) (RsaKeyPairType, error) {
 
 	// create a x509 PEM encoded "Public Key" string that you
 	//could store in a file if you wanted to :)
-	rsaKeyPair.publicKey = string(
+	rsaKeyPair.PublicKey = string(
 		pem.EncodeToMemory(
 			&pem.Block{
 				Type: "RSA Public Key",
@@ -91,11 +91,11 @@ func NewRSAKeyPair(rsaKeyLength int) (RsaKeyPairType, error) {
 // SaveRSAKeyPair saves a key pair to disk, the key pairs will
 //be written as fileName.pvt and fileName.pub
 func SaveRSAKeyPair(keys *RsaKeyPairType, fileName string) error {
-	err := os.WriteFile(fileName+".pvt", []byte(keys.privateKey), 0700)
+	err := os.WriteFile(fileName+".pvt", []byte(keys.PrivateKey), 0700)
 	if err != nil {
 		return err
 	}
-	err = os.WriteFile(fileName+".pub", []byte(keys.publicKey), 0700)
+	err = os.WriteFile(fileName+".pub", []byte(keys.PublicKey), 0700)
 	if err != nil {
 		return err
 	}
@@ -122,22 +122,22 @@ func LoadRsaKeys(fileName string) (*RsaKeyPairType, int) {
 
 	pub, err := os.ReadFile(fileName + ".pub")
 	if err == nil {
-		kp.publicKey = string(pub)
+		kp.PublicKey = string(pub)
 	} else {
-		kp.publicKey = "WARNING: " + "fileName" + ".pub wasn't found"
+		kp.PublicKey = "WARNING: " + "fileName" + ".pub wasn't found"
 		warning += publicKeyNotFound
 	}
 	pvt, err := os.ReadFile(fileName + ".pvt")
 	if err == nil {
-		kp.privateKey = string(pvt)
+		kp.PrivateKey = string(pvt)
 	} else {
-		kp.privateKey = "WARNING: " + "fileName" + ".pvt wasn't found"
+		kp.PrivateKey = "WARNING: " + "fileName" + ".pvt wasn't found"
 		warning += privateKeyNotfound
 	}
 	return &kp, warning
 }
 
-//EncryptMessage encrypts a plainText byte array with the RSA publicKey
+//EncryptMessage encrypts a plainText byte array with the RSA PublicKey
 //string passed in. RSA is one way encryption Use the Public key to
 //encrypt and the private key to decrypt.
 //Returns the encrypted text as a base64 encoded string.
@@ -149,7 +149,7 @@ func EncryptMessage(message string, publicKey string) (string, error) {
 	// convert the message to a byte array
 	plainText := []byte(message)
 
-	//convert publicKey to an array
+	//convert PublicKey to an array
 	block, _ := pem.Decode([]byte(publicKey))
 
 	//X509 decoding
