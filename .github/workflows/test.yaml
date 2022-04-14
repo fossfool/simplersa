@@ -7,19 +7,18 @@ on:
     branches:
       - master
 jobs:
-  test:
+  testcoverage:
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest]
+        os: [macos-latest, ubuntu-latest, windows-latest]
         go: ["1.17", "1.18"]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-go@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
         with:
           go-version: ${{ matrix.go }}
-
-      - run: go test ./... -v -cover -coverprofile coverage.out
-      - run: go test -bench . -benchmem
-
-      - uses: codecov/codecov-action@v1
+      - run: 
+          go build .
+          go test ./... -v -cover -coverprofile coverage.out
+        
