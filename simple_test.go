@@ -2,7 +2,7 @@
 // Please see the attached LICENSE.md file for the entire
 // text of my MIT style FOSS license.
 
-// SimpleRSA is a wrapper for the /crypto/rsa package.
+// simple_test file for SimpleRSA
 package simplersa
 
 import (
