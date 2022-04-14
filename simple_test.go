@@ -15,6 +15,8 @@ import (
 
 var TestKeyLen int = 3072
 
+const testPath string = "./testdata/"
+
 func TestNewRSAKeyPair(t *testing.T) {
 	//Normal Ops
 	kp, keyErr := NewRSAKeyPair(TestKeyLen)
@@ -35,22 +37,22 @@ func TestNewRSAKeyPair(t *testing.T) {
 func PrepTestDirectory(t *testing.T) error {
 	var rtn error
 
-	if _, err := os.Stat("./testCerts"); os.IsNotExist(err) {
+	if _, err := os.Stat(testPath); os.IsNotExist(err) {
 		//create directory for test
-		err := os.Mkdir("./testCerts", 0755)
+		err := os.Mkdir(testPath, 0755)
 		if err != nil {
 			rtn = errors.New("Can't create test directory")
 		}
 	} else {
 		//remove test files if they exist
-		if _, err := os.Stat("./testCerts/testKey.pvt"); os.IsExist(err) {
-			err := os.Remove("./testCerts/testKey.pvt")
+		if _, err := os.Stat(testPath + "testKey.pvt"); os.IsExist(err) {
+			err := os.Remove(testPath + "testKey.pvt")
 			if err != nil {
 				rtn = errors.New("cannot remove previous testKey.pvt")
 			}
 		}
-		if _, err := os.Stat("./testCerts/testKey.pub"); os.IsExist(err) {
-			err = os.Remove("./testCerts/testKey.pub")
+		if _, err := os.Stat(testPath + "testKey.pub"); os.IsExist(err) {
+			err = os.Remove(testPath + "testKey.pub")
 			if err != nil {
 				rtn = errors.New("cannot remove previous testKey.pub")
 			}
@@ -72,20 +74,20 @@ func TestSaveRSAKeyPair(t *testing.T) {
 
 	//Normal ops
 	//Attempt to create keyfiles
-	err := SaveRSAKeyPair(&kp, "./testCerts/testKey")
+	err := SaveRSAKeyPair(&kp, testPath+"testKey")
 	if err != nil {
 		t.Errorf("Cannot save Test Certs")
 	}
-	if _, err := os.Stat("./testCerts/testKey.pvt"); os.IsNotExist(err) {
+	if _, err := os.Stat(testPath + "testKey.pvt"); os.IsNotExist(err) {
 		t.Errorf("private key not created")
 	}
-	if _, err := os.Stat("./testCerts/testKey.pub"); os.IsNotExist(err) {
+	if _, err := os.Stat(testPath + "testKey.pub"); os.IsNotExist(err) {
 		t.Errorf("public key not created")
 	}
 
 	// see what happens if file permissions are wrong on the pvt file
-	os.Chmod("./testCerts/testKey.pvt", 0444)
-	pvterr := SaveRSAKeyPair(&kp, "./testCerts/testKey")
+	os.Chmod(testPath+"testKey.pvt", 0444)
+	pvterr := SaveRSAKeyPair(&kp, testPath+"testKey")
 	if pvterr != nil {
 		eStr := fmt.Sprintf("%s", pvterr)
 		if !strings.Contains(eStr, "denied") {
@@ -96,11 +98,11 @@ func TestSaveRSAKeyPair(t *testing.T) {
 	}
 
 	// reset permissions
-	os.Chmod("./testCerts/testKey.pvt", 0744)
+	os.Chmod(testPath+"testKey.pvt", 0744)
 
 	// see what happens if permission is denied to the public file
-	os.Chmod("./testCerts/testKey.pub", 0444)
-	pubErr := SaveRSAKeyPair(&kp, "./testCerts/testKey")
+	os.Chmod(testPath+"testKey.pub", 0444)
+	pubErr := SaveRSAKeyPair(&kp, testPath+"testKey")
 	if pubErr != nil {
 		eStr := fmt.Sprintf("%s", pubErr)
 		if !strings.Contains(eStr, "denied") {
@@ -111,16 +113,16 @@ func TestSaveRSAKeyPair(t *testing.T) {
 	}
 
 	// reset permissions
-	os.Chmod("./testCerts/testKey.pub", 0744)
+	os.Chmod(testPath+"testKey.pub", 0744)
 
 }
 
 func TestLoadRsaKeys(t *testing.T) {
-	//Assumes the TestCerts have been created and are available for loading
+	//Assumes the testdata have been created and are available for loading
 
 	//Test with all keys present
 	_ = func() int {
-		_, warning := LoadRsaKeys("./testCerts/testKey")
+		_, warning := LoadRsaKeys(testPath + "testKey")
 		if warning != 0 {
 			t.Errorf("A key is missing and should not be")
 		}
@@ -128,12 +130,12 @@ func TestLoadRsaKeys(t *testing.T) {
 	}()
 
 	//Test with pvt Key missing
-	err := os.Rename("./testCerts/testKey.pvt", "./testCerts/testKey.pvt.temp")
+	err := os.Rename(testPath+"testKey.pvt", testPath+"testKey.pvt.temp")
 	if err != nil {
 		t.Errorf("Can't rename Private Key")
 	}
 	_ = func() int {
-		_, warning := LoadRsaKeys("./testCerts/testKey")
+		_, warning := LoadRsaKeys(testPath + "testKey")
 		if warning != 1 {
 			t.Errorf("A key is missing and should not be")
 		}
@@ -141,12 +143,12 @@ func TestLoadRsaKeys(t *testing.T) {
 	}()
 
 	//Test with Both Keys missing
-	err = os.Rename("./testCerts/testKey.pub", "./testCerts/testKey.pub.temp")
+	err = os.Rename(testPath+"testKey.pub", testPath+"testKey.pub.temp")
 	if err != nil {
 		t.Errorf("Can't rename Public Key")
 	}
 	_ = func() int {
-		_, warning := LoadRsaKeys("./testCerts/testKey")
+		_, warning := LoadRsaKeys(testPath + "testKey")
 		if warning != 3 {
 			t.Errorf("both keys should be missing")
 		}
@@ -154,12 +156,12 @@ func TestLoadRsaKeys(t *testing.T) {
 	}()
 
 	//Test with public Key missing
-	err = os.Rename("./testCerts/testKey.pvt.temp", "./testCerts/testKey.pvt")
+	err = os.Rename(testPath+"testKey.pvt.temp", testPath+"testKey.pvt")
 	if err != nil {
 		t.Errorf("Can't rename Public Key")
 	}
 	_ = func() int {
-		_, warning := LoadRsaKeys("./testCerts/testKey")
+		_, warning := LoadRsaKeys(testPath + "testKey")
 		if warning != 2 {
 			t.Errorf("only the public key should be missing")
 		}
@@ -167,7 +169,7 @@ func TestLoadRsaKeys(t *testing.T) {
 	}()
 
 	//reset public key
-	err = os.Rename("./testCerts/testKey.pub.temp", "./testCerts/testKey.pub")
+	err = os.Rename(testPath+"testKey.pub.temp", testPath+"testKey.pub")
 	if err != nil {
 		t.Errorf("Can't rename Public Key")
 	}
