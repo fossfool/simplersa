@@ -1,3 +1,8 @@
+// Copyright (c) 2022 JS Bragg (FossFoolish Endeavors LTD.)
+// Please see the attached LICENSE.md file for the entire
+// text of my MIT style FOSS license.
+
+// SimpleRSA is a wrapper for the /crypto/rsa package.
 package simplersa
 
 import (
@@ -12,6 +17,7 @@ import (
 	"strings"
 )
 
+//Error Values:
 var (
 	ErrBlankValues                      = errors.New("message and/or PublicKey is blank")
 	ErrEncryptMessageConvertingKey      = errors.New("cannot convert key PEM decode failed")
@@ -103,17 +109,13 @@ func SaveRSAKeyPair(keys *RsaKeyPairType, fileName string) error {
 }
 
 //LoadRsaKeys attempts to load both the private and public keys from disk
-// Pay attention the "Warning" integer returned. it will be
-//  0 - Both keys loaded
-//	1 - if the private key wasn't found
-//  2 - if the public  key wasn't found
-//  3 - if both keys weren't found.
-//  cut bait and run accordingly
-// if it's 0 you have both keys and can encrypt and decrypt
-// if it's 1 you can't decrypt
-// if it's 2 you can't encrypt
-// if it's 3 you can't do anything
-// in addition file path is stored in the strings on warnings
+// Pay attention ito the "Warning" integer returned. It will be:
+//  0 - Both keys loaded - you can encrypt and decrypt.
+//  1 - if the private key wasn't found - you cannot decrypt messages.
+//  2 - if the public  key wasn't found - you can't encrypt messages.
+//  3 - if both keys weren't found - you can't do anything.
+// For debugging - if a file wasn't found, the file path has been stored
+// is stored in the missing key strings.
 func LoadRsaKeys(fileName string) (*RsaKeyPairType, int) {
 	var kp RsaKeyPairType
 	var warning = 0

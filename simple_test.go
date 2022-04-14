@@ -1,3 +1,8 @@
+// Copyright (c) 2022 JS Bragg (FossFoolish Endeavors LTD.)
+// Please see the attached LICENSE.md file for the entire
+// text of my MIT style FOSS license.
+
+// SimpleRSA is a wrapper for the /crypto/rsa package.
 package simplersa
 
 import (
@@ -83,7 +88,7 @@ func TestSaveRSAKeyPair(t *testing.T) {
 	pvterr := SaveRSAKeyPair(&kp, "./testCerts/testKey")
 	if pvterr != nil {
 		eStr := fmt.Sprintf("%s", pvterr)
-		if !strings.Contains(eStr, "permission denied") {
+		if !strings.Contains(eStr, "denied") {
 			t.Errorf("Err was: %s expected permission denied", eStr)
 		}
 	} else {
@@ -98,7 +103,7 @@ func TestSaveRSAKeyPair(t *testing.T) {
 	pubErr := SaveRSAKeyPair(&kp, "./testCerts/testKey")
 	if pubErr != nil {
 		eStr := fmt.Sprintf("%s", pubErr)
-		if !strings.Contains(eStr, "permission denied") {
+		if !strings.Contains(eStr, "denied") {
 			t.Errorf("Err was: %s expected permission denied", eStr)
 		}
 	} else {
