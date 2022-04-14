@@ -1,4 +1,5 @@
 [![test](https://github.com/fossfool/simplersa/actions/workflows/test.yaml/badge.svg?branch=master)](https://github.com/fossfool/simplersa/actions/workflows/test.yaml)
+testing builds
 # simplersa
 A Wrapper for RSA Encryption in Go (go or golang for search)
 
